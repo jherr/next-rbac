@@ -1,21 +1,15 @@
 "use client";
+import ShowCard from "./ShowCard";
+import { useShowsContext } from "./ShowContext";
 
-import { Button } from "@/components/ui/button";
+export default function ShowList() {
+  const { shows } = useShowsContext();
 
-export default function ShowList({
-  updateShowOrder,
-}: {
-  updateShowOrder: () => void;
-}) {
   return (
     <div className="flex flex-col">
-      <Button
-        onClick={async () => {
-          await updateShowOrder();
-        }}
-      >
-        Update Show Order
-      </Button>
+      {shows.map((show) => (
+        <ShowCard key={show.id} poster={show.image} name={show.name} />
+      ))}
     </div>
   );
 }

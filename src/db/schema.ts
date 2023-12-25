@@ -8,9 +8,13 @@ export const shows = pgTable("shows", {
   image: varchar("image", { length: 1024 }).notNull(),
 });
 
+export type Show = typeof shows.$inferSelect;
+
 export const votes = pgTable("votes", {
   id: serial("id").primaryKey(),
   userId: varchar("userId", { length: 255 }).notNull(),
   showId: integer("showId").notNull(),
   order: integer("order").notNull(),
 });
+
+export type Vote = typeof votes.$inferSelect;

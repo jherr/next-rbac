@@ -3,8 +3,15 @@ import { auth } from "@clerk/nextjs";
 
 import SearchSheet from "./components/SearchSheet";
 import ShowList from "./components/ShowList";
+import SortableShows from "./components/SortableShows";
 
-import { addShow, updateShowOrder } from "@/db";
+import {
+  addShow,
+  getShows,
+  getVotes,
+  updateShowOrder,
+  updateVotes,
+} from "@/db";
 
 export default function Home() {
   const { userId }: { userId: string | null } = auth();
@@ -14,12 +21,26 @@ export default function Home() {
     if (userId) {
       await addShow(userId, showId, name, image);
     }
+    return {
+      shows: await getShows(),
+      votes: userId ? await getVotes(userId) : [],
+    };
   };
 
-  const updateShowOrderAction = async () => {
+  const updateVotesAction = async (
+    votes: {
+      showId: number;
+      order: number;
+    }[]
+  ) => {
     "use server";
-    console.log("updateShowOrderAction");
-    await updateShowOrder();
+    if (userId) {
+      await updateVotes(userId, votes);
+    }
+    return {
+      shows: await getShows(),
+      votes: userId ? await getVotes(userId) : [],
+    };
   };
 
   return (
@@ -27,7 +48,14 @@ export default function Home() {
       {!userId && <SignIn />}
       {userId && <UserButton />}
       <SearchSheet addMovie={addMovie} />
-      <ShowList updateShowOrder={updateShowOrderAction} />
+      <div className="flex">
+        <div className="w-full md:w-1/2 px-2">
+          <SortableShows updateVotesAction={updateVotesAction} />
+        </div>
+        <div className="w-full md:w-1/2 px-2">
+          <ShowList />
+        </div>
+      </div>
     </div>
   );
 }

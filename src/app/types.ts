@@ -1,16 +1,6 @@
-export interface Show {
-  adult: boolean;
-  backdrop_path: string;
-  genre_ids: number[];
+export interface SearchShow {
   id: number;
-  origin_country: string[];
-  original_language: string;
-  original_name: string;
-  overview: string;
-  popularity: number;
-  poster_path: string;
-  first_air_date: string;
+  description: string;
+  poster: string;
   name: string;
-  vote_average: number;
-  vote_count: number;
 }

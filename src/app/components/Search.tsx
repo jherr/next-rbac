@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Input } from "@/components/ui/input";
 
-import type { Show } from "@/app/types";
+import type { SearchShow } from "@/app/types";
 
 export default function Search({
   addMovie,
@@ -25,7 +25,7 @@ export default function Search({
     [q]
   );
 
-  const { data } = useQuery<Show[]>({
+  const { data } = useQuery<SearchShow[]>({
     queryKey: ["todos", debouncedQuery],
     queryFn: () =>
       fetch(`/shows/search?q=${encodeURIComponent(debouncedQuery)}`).then(
@@ -46,12 +46,12 @@ export default function Search({
             key={show.id}
             className="flex pt-2 text-white w-full cursor-pointer text-left"
             onClick={() => {
-              addMovie(show.id, show.name, show.poster_path);
+              addMovie(show.id, show.name, show.poster);
               onClose();
             }}
           >
             <Image
-              src={show.poster_path}
+              src={show.poster}
               alt={show.name}
               className="w-12 aspect-w-9 aspect-h-16 rounded-tl-lg rounded-bl-lg object-cover"
               width={500}

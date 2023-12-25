@@ -4,10 +4,12 @@ import { Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs";
 
-import RQProvider from "./components/RQProvider";
-import "./globals.css";
+import RQProvider from "@/app/components/RQProvider";
+import { ShowsProvider } from "@/app/components/ShowContext";
 
 import { getShows, getVotes } from "@/db";
+
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,15 +25,16 @@ export default async function RootLayout({
 }) {
   const { userId }: { userId: string | null } = auth();
   const shows = await getShows();
-  const votes = userId ? await getShows() : [];
-  console.log({ shows, votes });
+  const votes = userId ? await getVotes(userId) : [];
 
   return (
     <html lang="en">
       <body className={`${inter.className} dark max-w-6xl mx-auto`}>
-        <RQProvider>
-          <ClerkProvider>{children}</ClerkProvider>
-        </RQProvider>
+        <ShowsProvider shows={shows} votes={votes}>
+          <RQProvider>
+            <ClerkProvider>{children}</ClerkProvider>
+          </RQProvider>
+        </ShowsProvider>
       </body>
     </html>
   );

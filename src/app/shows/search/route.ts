@@ -13,9 +13,10 @@ export async function GET(request: NextRequest) {
 
   const data = (await response.json()) as {
     results: {
+      id: number;
       original_language: string;
       poster_path: string;
-      backdrop_path: string;
+      overview: string;
     }[];
   };
 
@@ -26,9 +27,10 @@ export async function GET(request: NextRequest) {
           original_language === "en" && poster_path
       )
       .map((show: any) => ({
-        ...show,
-        poster_path: `https://image.tmdb.org/t/p/w500${show.poster_path}`,
-        backdrop_path: `https://image.tmdb.org/t/p/w500${show.backdrop_path}`,
+        id: show.id,
+        name: show.name,
+        description: show.overview,
+        poster: `https://image.tmdb.org/t/p/w500${show.poster_path}`,
       }))
   );
 }
