@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { FC } from "react";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -152,8 +152,10 @@ function ShowsToAvoid({
 }
 
 export default function SortableShows({
+  onSave,
   updateVotesAction,
 }: {
+  onSave: () => void;
   updateVotesAction: (
     votes: {
       showId: number;
@@ -163,11 +165,19 @@ export default function SortableShows({
 }) {
   const { shows, votes, setShows, setVotes } = useShowsContext();
 
-  const [currentVotes, setCurrentVotes] = useState<Show[]>(
-    votes
-      .toSorted((a, b) => a.order - b.order)
-      .map((vote) => shows.find(({ showId }) => showId === vote.showId)!)
+  const votesToShows = useCallback(
+    (votes: Vote[]) =>
+      votes
+        .toSorted((a, b) => a.order - b.order)
+        .map((vote) => shows.find(({ showId }) => showId === vote.showId)!),
+    [shows]
   );
+
+  const [currentVotes, setCurrentVotes] = useState<Show[]>(votesToShows(votes));
+
+  useEffect(() => {
+    setCurrentVotes(votesToShows(votes));
+  }, [votes, votesToShows]);
 
   const moveCard = useCallback((dragIndex: number, hoverIndex: number) => {
     setCurrentVotes((prevShows: Show[]) =>
@@ -202,7 +212,7 @@ export default function SortableShows({
     [shows]
   );
 
-  const onSave = useCallback(async () => {
+  const onSaveClick = useCallback(async () => {
     const newVotes = currentVotes.map((vote, index) => ({
       showId: vote.showId,
       order: vote.order,
@@ -212,7 +222,8 @@ export default function SortableShows({
       setShows(result.shows);
       setVotes(result.votes);
     }
-  }, [currentVotes, setShows, setVotes, updateVotesAction]);
+    onSave();
+  }, [currentVotes, setShows, setVotes, updateVotesAction, onSave]);
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -227,7 +238,7 @@ export default function SortableShows({
       </h1>
       <ShowsToAvoid shows={shows} votes={currentVotes} onAdd={onAdd} />
       <div className="mt-5 flex w-full justify-end">
-        <Button onClick={onSave}>Save</Button>
+        <Button onClick={onSaveClick}>Save Your Votes</Button>
       </div>
     </DndProvider>
   );

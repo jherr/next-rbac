@@ -1,24 +1,19 @@
-import { SignIn, UserButton } from "@clerk/nextjs";
-import { auth } from "@clerk/nextjs";
+import { NextResponse } from "next/server";
 
-import SearchSheet from "./components/SearchSheet";
-import ShowList from "./components/ShowList";
-import SortableShows from "./components/SortableShows";
+import { SignIn } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-import {
-  addShow,
-  getShows,
-  getVotes,
-  updateShowOrder,
-  updateVotes,
-} from "@/db";
+import { addShow, getShows, getVotes, updateVotes } from "@/db";
+
+import MainPage from "./components/MainPage";
 
 export default function Home() {
-  const { userId }: { userId: string | null } = auth();
+  const { userId, orgId } = auth();
 
   const addMovie = async (showId: number, name: string, image: string) => {
     "use server";
-    if (userId) {
+    const { has } = auth();
+    if (userId && has({ permission: "org:show:create" })) {
       await addShow(userId, showId, name, image);
     }
     return {
@@ -34,7 +29,8 @@ export default function Home() {
     }[]
   ) => {
     "use server";
-    if (userId) {
+    const { has } = auth();
+    if (userId && has({ permission: "org:vote:create" })) {
       await updateVotes(userId, votes);
     }
     return {
@@ -43,19 +39,21 @@ export default function Home() {
     };
   };
 
+  if (!userId) {
+    return (
+      <div className="flex h-screen justify-center items-center align-middle">
+        <SignIn afterSignInUrl="/" redirectUrl="/" />
+      </div>
+    );
+  }
+
+  if (!orgId) {
+    return NextResponse.redirect("/org-selection");
+  }
+
   return (
     <div className="pt-3">
-      {!userId && <SignIn />}
-      {userId && <UserButton />}
-      <SearchSheet addMovie={addMovie} />
-      <div className="flex">
-        <div className="w-full md:w-1/2 px-2">
-          <SortableShows updateVotesAction={updateVotesAction} />
-        </div>
-        <div className="w-full md:w-1/2 px-2">
-          <ShowList />
-        </div>
-      </div>
+      <MainPage addMovie={addMovie} updateVotesAction={updateVotesAction} />
     </div>
   );
 }

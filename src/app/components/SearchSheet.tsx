@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 
 import {
   Sheet,
@@ -7,9 +7,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 import { Show, Vote } from "@/db/schema";
 
@@ -17,16 +15,18 @@ import Search from "./Search";
 import { useShowsContext } from "./ShowContext";
 
 export default function SearchSheet({
+  open,
+  onOpenChange,
   addMovie,
 }: {
+  onOpenChange: (open: boolean) => void;
+  open: boolean;
   addMovie: (
     showId: number,
     name: string,
     image: string
   ) => Promise<{ shows: Show[]; votes: Vote[] }>;
 }) {
-  const [open, setOpen] = useState(false);
-
   const { setShows, setVotes } = useShowsContext();
   const onAddMovie = useCallback(
     (showId: number, name: string, image: string) => {
@@ -39,10 +39,7 @@ export default function SearchSheet({
   );
 
   return (
-    <Sheet modal open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
-        <Button>Search</Button>
-      </SheetTrigger>
+    <Sheet modal open={open} onOpenChange={onOpenChange}>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>TV Show Search</SheetTitle>
@@ -50,7 +47,7 @@ export default function SearchSheet({
             <Search
               addMovie={onAddMovie}
               onClose={() => {
-                setOpen(false);
+                onOpenChange(false);
               }}
             />
           </SheetDescription>

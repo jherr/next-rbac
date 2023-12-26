@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkProvider, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs";
 
 import RQProvider from "@/app/components/RQProvider";
@@ -28,14 +28,18 @@ export default async function RootLayout({
   const votes = userId ? await getVotes(userId) : [];
 
   return (
-    <html lang="en">
-      <body className={`${inter.className} dark max-w-6xl mx-auto`}>
-        <ShowsProvider shows={shows} votes={votes}>
-          <RQProvider>
-            <ClerkProvider>{children}</ClerkProvider>
-          </RQProvider>
-        </ShowsProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`${inter.className} dark max-w-6xl mx-auto`}>
+          <div className="bg-green-900 text-white mb-5 flex px-5 py-2 items-center rounded-b-lg">
+            <div className="text-2xl font-bold flex-grow">Show Voter</div>
+            <div>{userId && <UserButton afterSignOutUrl="/" />}</div>
+          </div>
+          <ShowsProvider shows={shows} votes={votes}>
+            <RQProvider>{children}</RQProvider>
+          </ShowsProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
